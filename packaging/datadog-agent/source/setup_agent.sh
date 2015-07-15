@@ -280,18 +280,18 @@ detect_sed() {
 
 print_console "Checking installation requirements"
 
+ERROR_MESSAGE="The installation from source is not supported on Mac OS X.
+Please use the 1-step install script available at https://app.datadoghq.com/account/settings#agent/mac."
+if [ "$(uname)" = "Darwin" ]; then exit 1; fi
 print_green "* uname $(uname)"
 
-# Sysstat must be installed, except on Macs
+# Sysstat must be installed
 ERROR_MESSAGE="sysstat is not installed on your system
 If you run CentOs/RHEL, you can install it by running:
   sudo yum install sysstat
 If you run Debian/Ubuntu, you can install it by running:
   sudo apt-get install sysstat"
-
-if [ "$(uname)" != "Darwin" ]; then
-    iostat > /dev/null 2>&1
-fi
+iostat > /dev/null 2>&1
 print_green "* sysstat is installed"
 
 # Detect Python version
@@ -504,15 +504,5 @@ up again in the foreground, run:
 
     $DD_HOME/bin/agent
 "
-
-if [ "$(uname)" = "Darwin" ]; then
-    print_console "To set it up as a daemon that always runs in the background
-while you're logged in, run:
-
-    mkdir -p ~/Library/LaunchAgents
-    cp $DD_HOME/launchd/com.datadoghq.Agent.plist ~/Library/LaunchAgents/
-    launchctl load -w ~/Library/LaunchAgents/com.datadoghq.Agent.plist
-"
-fi
 
 wait $AGENT_PID
