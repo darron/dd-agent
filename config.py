@@ -757,9 +757,22 @@ def load_check_directory(agentConfig, hostname):
         sys.exit(3)
 
     try:
+        checksd_path = 'checks.e'
+        checks_paths.append(glob.glob(os.path.join(checksd_path, '*.py')))
+    except PathNotFound, e:
+        log.error(e.args[0])
+        sys.exit(3)
+
+    try:
         confd_path = get_confd_path(osname)
     except PathNotFound, e:
         log.error("No conf.d folder found at '%s' or in the directory where the Agent is currently deployed.\n" % e.args[0])
+        sys.exit(3)
+
+    try:
+        confe_path = 'conf.e'
+    except PathNotFound, e:
+        log.error("No conf.e folder found at '%s' or in the directory where the Agent is currently deployed.\n" % e.args[0])
         sys.exit(3)
 
     # We don't support old style configs anymore
@@ -774,11 +787,16 @@ def load_check_directory(agentConfig, hostname):
             continue
 
         # Let's see if there is a conf.d for this check
-        conf_path = os.path.join(confd_path, '%s.yaml' % check_name)
+        confd_path = os.path.join(confd_path, '%s.yaml' % check_name)
+        confe_path = os.path.join(confd_path, '%s.yaml' % check_name)
         conf_exists = False
 
-        if os.path.exists(conf_path):
+        if os.path.exists(confd_path):
             conf_exists = True
+            conf_path = confd_path
+        elif os.path.exists(confe_path):
+            conf_exists = True
+            conf_path = confe_path
         else:
             log.debug("No configuration file for %s. Looking for defaults" % check_name)
 
