@@ -11,9 +11,11 @@ instances:
   #
 
   - nginx_status_url: http://localhost/nginx_status/
+  - nginx_ssl_verify: False
   #   tags:
   #     - instance:foo
   #
   # - nginx_status_url: http://example2.com:1234/nginx_status/
+  # - nginx_ssl_verify: False
   #   tags:
   #     - instance:bar

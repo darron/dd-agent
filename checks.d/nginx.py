@@ -29,6 +29,8 @@ class Nginx(AgentCheck):
     def check(self, instance):
         if 'nginx_status_url' not in instance:
             raise Exception('NginX instance missing "nginx_status_url" value.')
+        if 'nginx_ssl_verify' not in instance:
+            raise Exception('NginX instance missing "nginx_ssl_verify" value.')
         tags = instance.get('tags', [])
 
         response, content_type = self._get_data(instance)
@@ -51,6 +53,7 @@ class Nginx(AgentCheck):
 
     def _get_data(self, instance):
         url = instance.get('nginx_status_url')
+        ssl_verify = instance.get('nginx_ssl_verify')
 
         auth = None
         if 'user' in instance and 'password' in instance:
@@ -63,7 +66,8 @@ class Nginx(AgentCheck):
         service_check_name = 'nginx.can_connect'
         service_check_tags = ['host:%s' % nginx_host, 'port:%s' % nginx_port]
         try:
-            r = requests.get(url, auth=auth, headers=headers(self.agentConfig))
+            r = requests.get(url, auth=auth, headers=headers(self.agentConfig),
+                             verify=ssl_verify)
             r.raise_for_status()
         except Exception:
             self.service_check(service_check_name, AgentCheck.CRITICAL,
